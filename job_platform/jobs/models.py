@@ -2,12 +2,12 @@ from django.db import models
 from users.models import JobSeeker
 
 
-# Модель Компании
+
 class Company(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
 
-    # Можно добавить адрес, сайт и т.д.
+
 
     def __str__(self):
         return self.name
@@ -67,7 +67,7 @@ class Resume(models.Model):
     skills = models.TextField(blank=True, help_text="Перечислите навыки ")
     is_public = models.BooleanField(default=True)
     preferred_work_type = models.CharField(max_length=20, choices=Vacancy.WORK_TYPE_CHOICES, blank=True)
-    
+
 
 # Модель Образования
 class Education(models.Model):
