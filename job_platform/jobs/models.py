@@ -19,7 +19,9 @@ class Vacancy(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     requirements = models.TextField(blank=True)
-
+    is_active = models.BooleanField(default=True)
+    tags = models.CharField(max_length=255, blank=True, help_text="Ключевые слова через запятую.")
+    # Остальные поля...
     WORK_TYPE_CHOICES = (
         ('FULL', 'Full-time'),
         ('PARTIAL', 'Part-time'),
@@ -62,11 +64,10 @@ class Vacancy(models.Model):
 class Resume(models.Model):
     job_seeker = models.ForeignKey(JobSeeker, on_delete=models.CASCADE, related_name='resumes')
     title = models.CharField(max_length=255, blank=True)
-    skills = models.TextField(blank=True, help_text="Перечислите навыки через запятую.")
-
-    def __str__(self):
-        return f"Resume of {self.job_seeker.user.username}"
-
+    skills = models.TextField(blank=True, help_text="Перечислите навыки ")
+    is_public = models.BooleanField(default=True)
+    preferred_work_type = models.CharField(max_length=20, choices=Vacancy.WORK_TYPE_CHOICES, blank=True)
+    
 
 # Модель Образования
 class Education(models.Model):

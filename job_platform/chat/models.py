@@ -16,6 +16,8 @@ class Message(models.Model):
     text = models.TextField(blank=True)
     attachment = models.FileField(upload_to='chat_attachments/', null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+    deleted_by = models.ManyToManyField(User, related_name='deleted_messages', blank=True)
 
     def __str__(self):
         return f"Message from {self.sender.username} at {self.timestamp}"
