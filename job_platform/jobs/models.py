@@ -13,7 +13,6 @@ class Company(models.Model):
         return self.name
 
 
-# Модель Вакансии
 class Vacancy(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='vacancies')
     title = models.CharField(max_length=255)
@@ -60,7 +59,6 @@ class Vacancy(models.Model):
         return f"{self.title} at {self.company.name}"
 
 
-# Модель Резюме
 class Resume(models.Model):
     job_seeker = models.ForeignKey(JobSeeker, on_delete=models.CASCADE, related_name='resumes')
     title = models.CharField(max_length=255, blank=True)
@@ -69,7 +67,6 @@ class Resume(models.Model):
     preferred_work_type = models.CharField(max_length=20, choices=Vacancy.WORK_TYPE_CHOICES, blank=True)
 
 
-# Модель Образования
 class Education(models.Model):
     resume = models.ForeignKey(Resume, on_delete=models.CASCADE, related_name='educations')
     institution = models.CharField(max_length=255)
@@ -87,7 +84,6 @@ class Education(models.Model):
         return f"{self.degree} at {self.institution}"
 
 
-# Модель Опыт работы
 class Experience(models.Model):
     resume = models.ForeignKey(Resume, on_delete=models.CASCADE, related_name='experiences')
     position = models.CharField(max_length=255)
@@ -99,7 +95,6 @@ class Experience(models.Model):
         return f"{self.position} ({self.resume.job_seeker.user.username})"
 
 
-# Модель Запроса на работу
 class Request(models.Model):
     job_seeker = models.ForeignKey(JobSeeker, on_delete=models.CASCADE, related_name='job_requests')
     vacancy = models.ForeignKey(Vacancy, on_delete=models.CASCADE, related_name='requests')
@@ -117,7 +112,6 @@ class Request(models.Model):
         return f"Request by {self.job_seeker.user.username} for {self.vacancy.title}"
 
 
-# Модель Отзыва
 class Review(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='reviews')
     job_seeker = models.ForeignKey(JobSeeker, on_delete=models.CASCADE, related_name='reviews')
