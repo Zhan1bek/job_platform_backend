@@ -59,57 +59,52 @@ class Vacancy(models.Model):
         return f"{self.title} at {self.company.name}"
 
 
-class Resume(models.Model):
-    job_seeker = models.ForeignKey(JobSeeker, on_delete=models.CASCADE, related_name='resumes')
-    title = models.CharField(max_length=255, blank=True)
-    skills = models.TextField(blank=True, help_text="Перечислите навыки ")
-    is_public = models.BooleanField(default=True)
-    preferred_work_type = models.CharField(max_length=20, choices=Vacancy.WORK_TYPE_CHOICES, blank=True)
 
 
-class Education(models.Model):
-    resume = models.ForeignKey(Resume, on_delete=models.CASCADE, related_name='educations')
-    institution = models.CharField(max_length=255)
-    DEGREE_CHOICES = (
-        ('BACHELOR', 'Bachelor'),
-        ('MASTER', 'Master'),
-        ('PHD', 'PhD'),
-    )
-    degree = models.CharField(max_length=10, choices=DEGREE_CHOICES)
-    start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
-    gpa = models.DecimalField(max_digits=3, decimal_places=2, null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.degree} at {self.institution}"
-
-
-class Experience(models.Model):
-    resume = models.ForeignKey(Resume, on_delete=models.CASCADE, related_name='experiences')
-    position = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.position} ({self.resume.job_seeker.user.username})"
-
-
-class Request(models.Model):
-    job_seeker = models.ForeignKey(JobSeeker, on_delete=models.CASCADE, related_name='job_requests')
-    vacancy = models.ForeignKey(Vacancy, on_delete=models.CASCADE, related_name='requests')
-    resume = models.ForeignKey(Resume, on_delete=models.SET_NULL, null=True, blank=True)
-
-    STATUS_CHOICES = (
-        ('PENDING', 'Pending'),
-        ('ACCEPTED', 'Accepted'),
-        ('DECLINED', 'Declined'),
-    )
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Request by {self.job_seeker.user.username} for {self.vacancy.title}"
+# class Education(models.Model):
+#     resume = models.ForeignKey(Resume, on_delete=models.CASCADE, related_name='educations')
+#     institution = models.CharField(max_length=255)
+#     DEGREE_CHOICES = (
+#         ('BACHELOR', 'Bachelor'),
+#         ('MASTER', 'Master'),
+#         ('PHD', 'PhD'),
+#     )
+#     degree = models.CharField(max_length=10, choices=DEGREE_CHOICES)
+#     start_date = models.DateField()
+#     end_date = models.DateField(null=True, blank=True)
+#     gpa = models.DecimalField(max_digits=3, decimal_places=2, null=True, blank=True)
+#
+#     def __str__(self):
+#         return f"{self.degree} at {self.institution}"
+#
+#
+# class Experience(models.Model):
+#     resume = models.ForeignKey(Resume, on_delete=models.CASCADE, related_name='experiences')
+#     position = models.CharField(max_length=255)
+#     description = models.TextField(blank=True)
+#     start_date = models.DateField()
+#     end_date = models.DateField(null=True, blank=True)
+#
+#     def __str__(self):
+#         return f"{self.position} ({self.resume.job_seeker.user.username})"
+#
+#
+# class Request(models.Model):
+#     job_seeker = models.ForeignKey(JobSeeker, on_delete=models.CASCADE, related_name='job_requests')
+#     vacancy = models.ForeignKey(Vacancy, on_delete=models.CASCADE, related_name='requests')
+#     resume = models.ForeignKey(Resume, on_delete=models.SET_NULL, null=True, blank=True)
+#
+#     STATUS_CHOICES = (
+#         ('PENDING', 'Pending'),
+#         ('ACCEPTED', 'Accepted'),
+#         ('DECLINED', 'Declined'),
+#     )
+#     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+#     created_at = models.DateTimeField(auto_now_add=True)
+#
+#     def __str__(self):
+#         return f"Request by {self.job_seeker.user.username} for {self.vacancy.title}"
 
 
 class Review(models.Model):

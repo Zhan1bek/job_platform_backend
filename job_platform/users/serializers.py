@@ -1,48 +1,48 @@
 from rest_framework import serializers
-from .models import User
+from django.contrib.auth import get_user_model
+from .models import JobSeeker, Employer  # и Employer, если нужно
 
-class RegisterSerializer(serializers.ModelSerializer):
-    password2 = serializers.CharField(write_only=True, required=True, label="Подтверждение пароля")
+from rest_framework import serializers
+from .models import Resume
+
+User = get_user_model()
+
+class JobSeekerRegistrationSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = [
-            'username',
-            'first_name',
-            'last_name',
-            'email',
-            'phone',
-            'interface_language',
-            'password',
-            'password2'
-        ]
-        extra_kwargs = {
-            'password': {'write_only': True},  # пароль не выводится при сериализации
-        }
-
-    def validate(self, data):
-        if data['password'] != data['password2']:
-            raise serializers.ValidationError("Пароли не совпадают.")
-        return data
+        fields = ('username', 'password', 'email', 'phone', 'photo')
 
     def create(self, validated_data):
-        validated_data.pop('password2')
+        # 1) Создаём пользователя
         password = validated_data.pop('password')
         user = User(**validated_data)
         user.set_password(password)
         user.save()
+        JobSeeker.objects.create(user=user)
         return user
 
-class UserSerializer(serializers.ModelSerializer):
+
+class EmployerRegistrationSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
     class Meta:
         model = User
-        fields = [
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'email',
-            'phone',
-            'interface_language',
-            'photo',
-        ]
+        fields = ('username', 'password', 'email', 'phone', 'photo')
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.set_password(password)
+        user.save()
+        Employer.objects.create(user=user)
+        return user
+
+
+class ResumeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Resume
+        fields = '__all__'
+        read_only_fields = ('job_seeker', 'created_at', 'updated_at')
