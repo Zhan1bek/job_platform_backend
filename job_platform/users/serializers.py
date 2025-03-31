@@ -46,3 +46,33 @@ class ResumeSerializer(serializers.ModelSerializer):
         model = Resume
         fields = '__all__'
         read_only_fields = ('job_seeker', 'created_at', 'updated_at')
+
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'photo', 'phone', 'email']
+
+class JobSeekerSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = JobSeeker
+        fields = ['id', 'languages', 'user']
+
+    def update(self, instance, validated_data):
+        # validated_data для JobSeeker, а внутри user-данные
+        user_data = validated_data.pop('user', None)
+        # Обновляем поля JobSeeker
+        instance.languages = validated_data.get('languages', instance.languages)
+        instance.save()
+
+        if user_data:
+            user = instance.user
+            for attr, value in user_data.items():
+                setattr(user, attr, value)
+            user.save()
+
+        return instance
+
