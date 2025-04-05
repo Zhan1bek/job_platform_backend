@@ -6,6 +6,8 @@ from .models import Resume
 from .serializers import ResumeSerializer
 from .permissions import IsOwnerOrReadOnly
 
+from .models import JobSeeker
+from .serializers import JobSeekerSerializer
 
 
 
@@ -40,3 +42,17 @@ class ResumeViewSet(viewsets.ModelViewSet):
         else:
             # Если пользователь не job_seeker, можно выбросить ошибку
             raise ValueError("Вы не являетесь соискателем")
+
+
+
+
+class JobSeekerProfileView(generics.RetrieveUpdateAPIView):
+    queryset = JobSeeker.objects.all()
+    serializer_class = JobSeekerSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        # Возвращаем профиль текущего пользователя (job_seeker_profile)
+        # Предполагаем, что user -> job_seeker_profile (OneToOne)
+        # Если нет job_seeker_profile, выкидываем 404 или создаём его
+        return self.request.user.job_seeker_profile
