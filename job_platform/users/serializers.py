@@ -4,6 +4,7 @@ from .models import JobSeeker, Employer  # и Employer, если нужно
 
 from rest_framework import serializers
 from .models import Resume
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 User = get_user_model()
 
@@ -76,3 +77,20 @@ class JobSeekerSerializer(serializers.ModelSerializer):
 
         return instance
 
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        user = self.user
+
+        # Добавим username
+        data['username'] = user.username
+
+        # Определим роль
+        if hasattr(user, 'job_seeker_profile'):
+            data['role'] = 'jobseeker'
+        elif hasattr(user, 'employer_profile'):
+            data['role'] = 'employer'
+        else:
+            data['role'] = 'unknown'
+
+        return data

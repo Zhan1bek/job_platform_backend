@@ -8,7 +8,8 @@ from .permissions import IsOwnerOrReadOnly
 
 from .models import JobSeeker
 from .serializers import JobSeekerSerializer
-
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import CustomTokenObtainPairSerializer
 
 
 class JobSeekerRegisterView(generics.CreateAPIView):
@@ -56,3 +57,9 @@ class JobSeekerProfileView(generics.RetrieveUpdateAPIView):
         # Предполагаем, что user -> job_seeker_profile (OneToOne)
         # Если нет job_seeker_profile, выкидываем 404 или создаём его
         return self.request.user.job_seeker_profile
+
+
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
