@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'users',
     'chat',
     'jobs',
+    'companies',
+
 ]
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {

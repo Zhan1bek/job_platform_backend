@@ -1,8 +1,11 @@
-from django.urls import path
-from .views import JobSeekerRegisterView, EmployerRegisterView, JobSeekerProfileView
-from rest_framework.routers import DefaultRouter
 from django.urls import path, include
-from .views import ResumeViewSet
+from rest_framework.routers import DefaultRouter
+from .views import (
+    JobSeekerRegisterView, 
+    EmployerRegisterView, 
+    JobSeekerProfileView, 
+    ResumeViewSet
+)
 
 router = DefaultRouter()
 router.register(r'resumes', ResumeViewSet, basename='resumes')
@@ -10,7 +13,9 @@ router.register(r'resumes', ResumeViewSet, basename='resumes')
 urlpatterns = [
     path('register/jobseeker/', JobSeekerRegisterView.as_view(), name='jobseeker-register'),
     path('register/employer/', EmployerRegisterView.as_view(), name='employer-register'),
-    path('', include(router.urls)),
+
     path('jobseeker/profile/', JobSeekerProfileView.as_view(), name='jobseeker-profile'),
 
+    # router на резюме
+    path('', include(router.urls)),
 ]
