@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Vacancy, Review
+from companies.models import Vacancy
 
 class VacancySerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,8 +15,8 @@ class VacancySerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Request
 #         fields = '__all__'
-
-class ReviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Review
-        fields = '__all__'
+#
+# class ReviewSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Review
+#         fields = '__all__'

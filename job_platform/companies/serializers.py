@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CompanyJoinRequest, Vacancy
+from .models import CompanyJoinRequest, Vacancy, Application
 
 class CompanyJoinRequestSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,3 +15,16 @@ class VacancySerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['company', 'created_by', 'created_at', 'updated_at']
 
+
+class ApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Application
+        fields = [
+            'id',
+            'vacancy',
+            'job_seeker',
+            'status',
+            'cover_letter',
+            'created_at'
+        ]
+        read_only_fields = ['id', 'job_seeker', 'created_at']

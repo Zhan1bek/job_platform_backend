@@ -1,13 +1,18 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.db import IntegrityError
+from rest_framework.exceptions import ValidationError
 
 from users.models import Employer
 from .models import CompanyJoinRequest
 from .serializers import CompanyJoinRequestSerializer
-from .models import Vacancy
+from .models import Vacancy, Application
 from .serializers import VacancySerializer
 from users.permissions import IsOwnerOrReadOnly
+
+from rest_framework.exceptions import PermissionDenied
+from .serializers import ApplicationSerializer
 
 
 class CompanyJoinRequestViewSet(viewsets.ModelViewSet):
@@ -83,3 +88,65 @@ class VacancyViewSet(viewsets.ModelViewSet):
             company=user.company,
             created_by=user
         )
+
+
+
+class ApplicationViewSet(viewsets.ModelViewSet):
+    queryset = Application.objects.all()
+    serializer_class = ApplicationSerializer
+    permission_classes = [permissions.IsAuthenticated]  # + custom permissions
+
+    def perform_create(self, serializer):
+        user = self.request.user
+
+        # 1) Проверяем, что user - job_seeker
+        if user.role != 'job_seeker':
+            raise PermissionDenied("Только соискатель может откликаться")
+
+        if not hasattr(user, 'job_seeker_profile'):
+            raise PermissionDenied("У вас нет job_seeker_profile")
+
+        job_seeker = user.job_seeker_profile  # OneToOne
+
+        try:
+            serializer.save(job_seeker=job_seeker, status='pending')
+        except IntegrityError:
+            raise ValidationError({"detail": "Вы уже откликались на эту вакансию"})
+
+        # 2) Сохраняем с default status='pending'
+        # serializer.validated_data['vacancy'] - тот vacancy_id, что пришёл с POST
+        serializer.save(job_seeker=job_seeker, status='pending')
+
+    def update(self, request, *args, **kwargs):
+        """
+        Переопределим update для изменения `status`.
+        Проверяем, что user = employer компании, где эта вакансия.
+        """
+        application = self.get_object()
+        user = request.user
+
+        # Проверяем, что user - employer и принадлежит той же компании:
+        # vacancy -> company == user.company
+        if user.role != 'employer':
+            raise PermissionDenied("Только работодатель может обновлять статус отклика")
+
+        if not user.company:
+            raise PermissionDenied("У вас нет компании")
+
+        if application.vacancy.company != user.company:
+            raise PermissionDenied("Вы не владелец этой вакансии")
+
+        return super().update(request, *args, **kwargs)
+
+    def get_queryset(self):
+        user = self.request.user
+        qs = super().get_queryset()
+
+        if user.role == 'job_seeker':
+            # показываем только отклики, где job_seeker = user.job_seeker_profile
+            return qs.filter(job_seeker=user.job_seeker_profile)
+        elif user.role == 'employer':
+            # показываем только отклики на вакансии его компании
+            return qs.filter(vacancy__company=user.company)
+        else:
+            return qs.none()

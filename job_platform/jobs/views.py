@@ -1,5 +1,5 @@
 from rest_framework import viewsets, permissions
-from .models import Vacancy
+from companies.models import Vacancy
 from .serializers import VacancySerializer
 
 class VacancyViewSet(viewsets.ModelViewSet):
