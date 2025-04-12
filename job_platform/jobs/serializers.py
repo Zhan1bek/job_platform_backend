@@ -1,10 +1,10 @@
-from rest_framework import serializers
-from companies.models import Vacancy
-
-class VacancySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Vacancy
-        fields = '__all__'
+# from rest_framework import serializers
+# from companies.models import Vacancy
+#
+# class VacancySerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Vacancy
+#         fields = '__all__'
 
 # class ResumeSerializer(serializers.ModelSerializer):
 #     class Meta:

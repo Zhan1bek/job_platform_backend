@@ -28,3 +28,12 @@ class ApplicationSerializer(serializers.ModelSerializer):
             'created_at'
         ]
         read_only_fields = ['id', 'job_seeker', 'created_at']
+
+
+class VacancySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vacancy
+        fields = '__all__'
+        read_only_fields = [
+            'company', 'created_by', 'created_at', 'updated_at'
+        ]
