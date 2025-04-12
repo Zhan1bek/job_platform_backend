@@ -25,6 +25,8 @@ urlpatterns = [
     path('api/companies/', include('companies.urls')),
     path('api/jobs/', include('jobs.urls')),  # если jobs существует
     path('api/', include(router.urls)),       # chat API
+    path('api/publications/', include('publications.urls')),
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

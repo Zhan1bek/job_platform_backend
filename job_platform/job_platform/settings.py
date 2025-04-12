@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'chat',
     'jobs',
     'companies',
+    'publications'
 
 ]
 SWAGGER_SETTINGS = {
