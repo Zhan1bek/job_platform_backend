@@ -33,12 +33,18 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
 
 class VacancySerializer(serializers.ModelSerializer):
+    is_favorited = serializers.SerializerMethodField()
+
     class Meta:
         model = Vacancy
         fields = '__all__'
-        read_only_fields = [
-            'company', 'created_by', 'created_at', 'updated_at'
-        ]
+        read_only_fields = ['company', 'created_by', 'created_at', 'updated_at']
+
+    def get_is_favorited(self, obj):
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        return FavoriteVacancy.objects.filter(user=user, vacancy=obj).exists()
 
 class FavoriteVacancySerializer(serializers.ModelSerializer):
     class Meta:
