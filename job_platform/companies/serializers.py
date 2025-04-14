@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import CompanyJoinRequest, Vacancy, Application
+from rest_framework import serializers
+from .models import FavoriteVacancy
 
 class CompanyJoinRequestSerializer(serializers.ModelSerializer):
     class Meta:
@@ -37,3 +39,9 @@ class VacancySerializer(serializers.ModelSerializer):
         read_only_fields = [
             'company', 'created_by', 'created_at', 'updated_at'
         ]
+
+class FavoriteVacancySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FavoriteVacancy
+        fields = ['id', 'user', 'vacancy', 'created_at']
+        read_only_fields = ['id', 'user', 'created_at']

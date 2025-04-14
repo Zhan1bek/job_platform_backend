@@ -131,3 +131,14 @@ class Application(models.Model):
 
     def __str__(self):
         return f"Application from {self.job_seeker.user.username} to {self.vacancy.title}"
+# companies/models.py
+class FavoriteVacancy(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='favorite_vacancies')
+    vacancy = models.ForeignKey('Vacancy', on_delete=models.CASCADE, related_name='favorited_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'vacancy')
+
+    def __str__(self):
+        return f"{self.user.username} ❤️ {self.vacancy.title}"

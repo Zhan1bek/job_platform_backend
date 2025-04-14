@@ -3,7 +3,8 @@
 # from .models import Vacancy
 # from .serializers import VacancySerializer
 # from rest_framework.permissions import IsAuthenticatedOrReadOnly
-#
+
+
 # class VacancyViewSet(viewsets.ModelViewSet):
 #     queryset = Vacancy.objects.all()
 #     serializer_class = VacancySerializer

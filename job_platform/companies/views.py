@@ -13,7 +13,12 @@ from users.permissions import IsOwnerOrReadOnly
 
 from rest_framework.exceptions import PermissionDenied
 from .serializers import ApplicationSerializer
+from django_filters.rest_framework import DjangoFilterBackend
 
+from rest_framework import viewsets, permissions
+from rest_framework.exceptions import PermissionDenied
+from .models import FavoriteVacancy
+from .serializers import FavoriteVacancySerializer
 
 class CompanyJoinRequestViewSet(viewsets.ModelViewSet):
     queryset = CompanyJoinRequest.objects.all()
@@ -67,6 +72,9 @@ class VacancyViewSet(viewsets.ModelViewSet):
     queryset = Vacancy.objects.all()
     serializer_class = VacancySerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['category', 'location', 'is_active', 'company']
 
     def perform_create(self, serializer):
         """
@@ -150,3 +158,16 @@ class ApplicationViewSet(viewsets.ModelViewSet):
             return qs.filter(vacancy__company=user.company)
         else:
             return qs.none()
+
+class FavoriteVacancyViewSet(viewsets.ModelViewSet):
+    serializer_class = FavoriteVacancySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return FavoriteVacancy.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        if user.role != 'job_seeker':
+            raise PermissionDenied("Только соискатели могут добавлять в избранное.")
+        serializer.save(user=user)
