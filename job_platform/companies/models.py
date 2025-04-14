@@ -3,13 +3,13 @@ from django.conf import settings
 from django.utils import timezone
 from users.models import JobSeeker
 
-
 class Company(models.Model):
-    """
-    Модель компании
-    """
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
+    logo = models.ImageField(upload_to='company_logos/', null=True, blank=True)
+    website = models.URLField(blank=True)
+    industry = models.CharField(max_length=100, blank=True)
+    founded_year = models.IntegerField(null=True, blank=True)
 
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -64,30 +64,17 @@ class JobCategory(models.Model):
 
 
 class Vacancy(models.Model):
-    """
-    Вакансия (или "Job"), связана с компанией и опционально с категорией.
-    """
-    company = models.ForeignKey(
-        Company,
-        on_delete=models.CASCADE,
-        related_name='vacancies'
-    )
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='vacancies')
     title = models.CharField(max_length=255)
     description = models.TextField()
-    category = models.ForeignKey(
-        JobCategory,
-        on_delete=models.SET_NULL,
-        null=True, blank=True,
-        related_name='vacancies'
-    )
+    requirements = models.TextField(blank=True, help_text="Требования к кандидату")
+    category = models.ForeignKey('JobCategory', on_delete=models.SET_NULL, null=True, blank=True, related_name='vacancies')
     location = models.CharField(max_length=255, blank=True, null=True)
     salary_from = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     salary_to = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True, blank=True
-    )
+    work_type = models.CharField(max_length=20, choices=[('FULL', 'Full-time'), ('PART', 'Part-time')], default='FULL')
+    experience_required = models.CharField(max_length=100, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)

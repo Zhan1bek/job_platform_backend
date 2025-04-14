@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/jobs/', include('jobs.urls')),  # если jobs существует
     path('api/', include(router.urls)),       # chat API
     path('api/publications/', include('publications.urls')),
+    path('api/', include('reports.urls')),
 
 ]
 

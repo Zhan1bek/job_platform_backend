@@ -5,10 +5,9 @@ from users.models import JobSeeker, Employer
 class Chat(models.Model):
     job_seeker = models.ForeignKey(JobSeeker, on_delete=models.CASCADE, related_name='chats')
     employer = models.ForeignKey(Employer, on_delete=models.CASCADE, related_name='chats')
-
+    last_activity = models.DateTimeField(auto_now=True)
     def __str__(self):
         return f"Chat between {self.job_seeker.user.username} and {self.employer.user.username}"
-
 
 class Message(models.Model):
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name='messages')
@@ -17,6 +16,7 @@ class Message(models.Model):
     attachment = models.FileField(upload_to='chat_attachments/', null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
+    is_edited = models.BooleanField(default=False)
     deleted_by = models.ManyToManyField(User, related_name='deleted_messages', blank=True)
 
     def __str__(self):
