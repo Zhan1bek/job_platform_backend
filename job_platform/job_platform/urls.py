@@ -7,11 +7,11 @@ from users.views import CustomTokenObtainPairView  # кастомная авто
 from django.conf import settings
 from django.conf.urls.static import static
 
-from chat.views import ChatViewSet, MessageViewSet
+from chat.views import ChatViewSet
 
 router = routers.DefaultRouter()
 router.register(r'chats', ChatViewSet, basename='chats')
-router.register(r'messages', MessageViewSet, basename='messages')
+# router.register(r'messages', MessageViewSet, basename='messages')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,6 +27,8 @@ urlpatterns = [
     path('api/', include(router.urls)),       # chat API
     path('api/publications/', include('publications.urls')),
     path('api/', include('reports.urls')),
+    path('api/chat/', include('chat.urls')),
+
 
 ]
 

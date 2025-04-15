@@ -4,29 +4,29 @@ from django.utils import timezone
 from companies.models import Company
 
 class Publication(models.Model):
-    """
-    Публикация (пост).
-    Может быть создана:
-    - обычным пользователем (job_seeker/employer)
-    - либо "официально" от имени компании.
-    """
+
+    POST_TYPE_CHOICES = (
+        ('general', 'General'),
+        ('review', 'Review'),        # например, отзыв о компании
+        ('announcement', 'Announcement'),
+    )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='publications'
     )
-    # Если хотим позволить постить "от имени компании"
     company = models.ForeignKey(
         Company,
         on_delete=models.SET_NULL,
         null=True, blank=True,
         related_name='publications'
     )
+    title = models.CharField(max_length=255, blank=True)
+    post_type = models.CharField(max_length=20, choices=POST_TYPE_CHOICES, default='general')
+    tags = models.CharField(max_length=255, blank=True, help_text="Теги через запятую")
+
     text = models.TextField()
-    image = models.ImageField(
-        upload_to='publications/',
-        null=True, blank=True
-    )
+    image = models.ImageField(upload_to='publications/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
