@@ -25,7 +25,11 @@ SECRET_KEY = 'django-insecure-g9sd=#8+*lt=l1)o^h@4wux@0rxwg+_#_-svp!9qyorxg==k8m
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '10.0.2.2',
+    'localhost',
+    '127.0.0.1'
+]
 
 
 # Application definition
@@ -47,7 +51,8 @@ INSTALLED_APPS = [
     'jobs',
     'companies',
     'publications',
-    'channels'
+    'channels',
+    'corsheaders'
 
 ]
 
@@ -81,6 +86,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'job_platform.urls'
@@ -173,3 +179,4 @@ REST_FRAMEWORK = {
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+CORS_ALLOW_ALL_ORIGINS = True
