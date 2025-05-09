@@ -3,10 +3,11 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Exists, OuterRef
 
+from resumes.ai_services import career_advice, recommend_jobs_for_resume, evaluate_resume_for_vacancy
 from resumes.models import Resume
 from resumes.serializers import ResumeSerializer
 from resumes.permissions import ResumePermission
-from resumes.ai_services import evaluate_resume_for_vacancy, recommend_jobs_for_resume, career_advice  # ИИ-анализ
+# from resumes.ai_services import evaluate_resume_for_vacancy, recommend_jobs_for_resume, career_advice  # ИИ-анализ
 from companies.models import Application, Vacancy
 
 
@@ -14,18 +15,9 @@ def get_jobseeker_profile(user):
     return getattr(user, "job_seeker_profile", None) or getattr(user, "jobseeker", None)
 
 
-class ResumeViewSet(viewsets.ModelViewSet):
-    """
-    /api/resumes/
-    - GET /            — список резюме
-    - POST /           — создать
-    - GET /{id}/       — подробности
-    - PATCH /{id}/     — редактировать
-    - DELETE /{id}/    — удалить
-    - POST /{id}/export-pdf/ — сгенерировать PDF
-    - POST /{id}/analyze/    — запустить AI-анализ
-    """
 
+
+class ResumeViewSet(viewsets.ModelViewSet):
     serializer_class = ResumeSerializer
     permission_classes = [permissions.IsAuthenticated, ResumePermission]
 
@@ -48,47 +40,26 @@ class ResumeViewSet(viewsets.ModelViewSet):
 
         return Resume.objects.none()
 
-    # ────────────────────────────── PDF ──────────────────────────────
-
-    @action(detail=True, methods=["post"], url_path="export-pdf")
-    def export_pdf(self, request, pk=None):
-        resume = self.get_object()
-        force = request.data.get("force") == "true"
-
-        if resume.pdf_file and not force:
-            return Response(
-                {"pdf_url": request.build_absolute_uri(resume.pdf_file.url)},
-                status=status.HTTP_200_OK
-            )
-
-        resume.build_pdf()
-        return Response(
-            {"pdf_url": request.build_absolute_uri(resume.pdf_file.url)},
-            status=status.HTTP_201_CREATED
-        )
-
-    # ────────────────────────────── AI-анализ ──────────────────────────────
-
     @action(detail=True, methods=["post"], url_path="evaluate-for/(?P<vacancy_id>[^/.]+)")
     def evaluate_for_vacancy(self, request, pk=None, vacancy_id=None):
         resume = self.get_object()
         try:
             vacancy = Vacancy.objects.get(pk=vacancy_id)
         except Vacancy.DoesNotExist:
-            return Response({"error": "Вакансия не найдена"}, status=404)
+            return Response({"error": "Vacancy not found"}, status=status.HTTP_404_NOT_FOUND)
 
         result = evaluate_resume_for_vacancy(resume, vacancy)
-        return Response({"evaluation": result})
+        return Response({"evaluation": result}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["get"], url_path="recommend-jobs")
     def recommend_jobs(self, request, pk=None):
         resume = self.get_object()
-        vacancies = Vacancy.objects.all()[:20]  # можно фильтровать по городу и т.д.
+        vacancies = Vacancy.objects.all()[:20]
         result = recommend_jobs_for_resume(resume, vacancies)
-        return Response({"recommendations": result})
+        return Response({"recommendations": result}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], url_path="career-advice")
     def career_advice_action(self, request, pk=None):
         resume = self.get_object()
         result = career_advice(resume)
-        return Response({"advice": result})
+        return Response({"advice": result}, status=status.HTTP_200_OK)

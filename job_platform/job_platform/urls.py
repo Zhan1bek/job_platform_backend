@@ -8,10 +8,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from resumes.views import ResumeViewSet
-from chat.views import ChatViewSet
+# from chat.views import ChatViewSet
 
 router = routers.DefaultRouter()
-router.register(r'chats', ChatViewSet, basename='chats')
+# router.register(r'chats', ChatViewSet, basename='chats')
 router.register(r"resumes", ResumeViewSet, "resume")
 
 # router.register(r'messages', MessageViewSet, basename='messages')

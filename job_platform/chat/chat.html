@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Chat</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        #chat-log { border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 10px; margin-bottom: 10px; }
+        input { padding: 5px; }
+    </style>
+</head>
+<body>
+
+<h2>WebSocket Chat</h2>
+
+<label>
+    Room name:
+    <input type="text" id="room-name" value="chat_1_2">
+</label>
+<br><br>
+<label>
+    Sender ID:
+    <input type="text" id="sender-id" value="1">
+</label>
+<br><br>
+<label>
+    Recipient ID:
+    <input type="text" id="recipient-id" value="2">
+</label>
+<br><br>
+
+<div id="chat-log"></div>
+
+<input type="text" id="chat-message-input" placeholder="Type a message...">
+<button id="send-button">Send</button>
+
+<script>
+    let socket = null;
+
+    function connect() {
+        const roomName = document.getElementById('room-name').value;
+        socket = new WebSocket('ws://localhost:8000/ws/chat/' + roomName + '/');
+
+        socket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            const chatLog = document.getElementById('chat-log');
+            chatLog.innerHTML += `<div><b>${data.sender_id}</b>: ${data.message}</div>`;
+            chatLog.scrollTop = chatLog.scrollHeight;
+        };
+
+        socket.onclose = function () {
+            console.error('WebSocket closed unexpectedly');
+        };
+    }
+
+    document.getElementById('send-button').onclick = function () {
+        const messageInput = document.getElementById('chat-message-input');
+        const senderId = document.getElementById('sender-id').value;
+        const recipientId = document.getElementById('recipient-id').value;
+
+        socket.send(JSON.stringify({
+            'message': messageInput.value,
+            'sender_id': senderId,
+            'recipient_id': recipientId
+        }));
+
+        messageInput.value = '';
+    };
+
+    connect();
+</script>
+
+</body>
+</html>

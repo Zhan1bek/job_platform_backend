@@ -1,40 +1,13 @@
-# chat/models.py
 from django.db import models
-from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.utils import timezone
-
-
-class Chat(models.Model):
-    """
-    Модель чата (комнаты).
-    participants = ManyToManyField к User
-    """
-    participants = models.ManyToManyField(
-        settings.AUTH_USER_MODEL,
-        related_name='chats'
-    )
-    created_at = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return f"Chat {self.id}"
+User = get_user_model()
 
 class Message(models.Model):
-    """
-    Сообщение в чате.
-    """
-    chat = models.ForeignKey(
-        Chat,
-        on_delete=models.CASCADE,
-        related_name='messages'
-    )
-    sender = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='messages'
-    )
-    text = models.TextField()
-    created_at = models.DateTimeField(default=timezone.now)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages', null=True, blank=True)
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages', null=True, blank=True)
+    content = models.TextField(default="")  # безопасное значение по умолчанию
+    timestamp = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"Msg {self.id} from {self.sender.username} in chat {self.chat.id}"
-
+        return f"From {self.sender} to {self.recipient}"
