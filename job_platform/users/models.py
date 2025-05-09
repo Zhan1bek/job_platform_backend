@@ -41,6 +41,10 @@ class JobSeeker(models.Model):
     skills = models.CharField(max_length=255, blank=True, help_text="Навыки, например: Python, SQL, Django")
     bio = models.TextField(blank=True, help_text="О себе")
     city = models.CharField(max_length=100, blank=True, help_text="Город проживания")
+    birth_date = models.DateField(null=True, blank=True)
+    experience = models.TextField(blank=True, help_text="Опыт работы")
+    education = models.TextField(blank=True, help_text="Образование")
+    certifications = models.TextField(blank=True, help_text="Сертификаты")
 
     def __str__(self):
         return f"JobSeeker: {self.user.username}"
@@ -58,16 +62,4 @@ class Employer(models.Model):
     def __str__(self):
         return f"Employer: {self.user.username}"
 
-# class Resume(models.Model):
-#     job_seeker = models.ForeignKey(JobSeeker, on_delete=models.CASCADE, related_name='resumes')
-#     title = models.CharField(max_length=200)
-#     summary = models.TextField(blank=True)
-#     file = models.FileField(upload_to='resumes/', null=True, blank=True)
-#     education = models.TextField(blank=True)
-#     experience = models.TextField(blank=True)
-#     portfolio_url = models.URLField(blank=True)
-#     created_at = models.DateTimeField(default=timezone.now)
-#     updated_at = models.DateTimeField(auto_now=True)
-#
-#     def __str__(self):
-#         return f"{self.title} (JobSeeker: {self.job_seeker.user.username})"
+

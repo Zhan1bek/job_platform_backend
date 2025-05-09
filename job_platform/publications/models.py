@@ -3,6 +3,15 @@ from django.conf import settings
 from django.utils import timezone
 from companies.models import Company
 
+
+
+class PostCategory(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Publication(models.Model):
 
     POST_TYPE_CHOICES = (
@@ -24,7 +33,8 @@ class Publication(models.Model):
     title = models.CharField(max_length=255, blank=True)
     post_type = models.CharField(max_length=20, choices=POST_TYPE_CHOICES, default='general')
     tags = models.CharField(max_length=255, blank=True, help_text="Теги через запятую")
-
+    category = models.ForeignKey(PostCategory, on_delete=models.SET_NULL, null=True, blank=True,
+                                 related_name='publications')
     text = models.TextField()
     image = models.ImageField(upload_to='publications/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

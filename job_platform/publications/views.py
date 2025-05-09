@@ -1,5 +1,8 @@
 from .models import Publication, PublicationLike
 from .serializers import PublicationSerializer, PublicationLikeSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+
 
 
 from rest_framework import viewsets, status
@@ -42,6 +45,11 @@ class PublicationViewSet(viewsets.ModelViewSet):
     queryset = Publication.objects.all()
     serializer_class = PublicationSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['post_type', 'company', 'category', 'author']
+    search_fields = ['text', 'title', 'tags']
+    ordering_fields = ['created_at']
+    ordering = ['-created_at']
 
     def perform_create(self, serializer):
         """

@@ -37,7 +37,7 @@ class CustomUserAdmin(UserAdmin):
         'id', 'username', 'email', 'role', 'company', 'is_staff', 'is_superuser'
     )
     list_filter = ('role', 'company', 'is_staff', 'is_superuser')
-    search_fields = ('username', 'email', 'company__name')
+    search_fields = ("username", "email", "first_name", "last_name")
     ordering = ('id',)
 
 @admin.register(JobSeeker)

@@ -1,14 +1,22 @@
 from rest_framework import serializers
 from .models import Publication, PublicationLike, Comment, CommentLike
+from .models import PostCategory
+
+class PostCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostCategory
+        fields = ['id', 'name']
 
 class PublicationSerializer(serializers.ModelSerializer):
     likes_count = serializers.IntegerField(read_only=True)
     comments_count = serializers.IntegerField(read_only=True)
+    category = serializers.SlugRelatedField(slug_field="name", queryset=PostCategory.objects.all(), required=False)
 
     class Meta:
         model = Publication
         fields = [
-            'id', 'author', 'company', 'text', 'image',
+            'id', 'author', 'company', 'title', 'text', 'post_type',
+            'tags', 'image', 'category',
             'created_at', 'updated_at',
             'likes_count', 'comments_count'
         ]
