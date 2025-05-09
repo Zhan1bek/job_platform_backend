@@ -17,8 +17,17 @@ from .serializers import ApplicationSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions
 from rest_framework.exceptions import PermissionDenied
-from .models import FavoriteVacancy
-from .serializers import FavoriteVacancySerializer
+from rest_framework import filters
+
+from companies.ai_services import find_best_resumes_for_vacancy
+from resumes.models import Resume
+from rest_framework.decorators import action
+
+
+
+
+
+
 
 class CompanyJoinRequestViewSet(viewsets.ModelViewSet):
     queryset = CompanyJoinRequest.objects.all()
@@ -73,24 +82,19 @@ class VacancyViewSet(viewsets.ModelViewSet):
     serializer_class = VacancySerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['category', 'location', 'is_active', 'company']
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = [
+        'category', 'city', 'employment_type', 'experience',
+        'currency', 'is_active', 'company'
+    ]
+    search_fields = ['title', 'description']
+    ordering_fields = ['created_at', 'salary_from', 'salary_to']
+    ordering = ['-created_at']
 
     def perform_create(self, serializer):
-        """
-        При создании вакансии нужно убедиться, что текущий пользователь (request.user)
-        является сотрудником какой-то компании.
-        Заполним fields: company=..., created_by=...
-        """
         user = self.request.user
         if not user.company:
-            return Response(
-                {"detail": "У вас нет компании, вы не можете создавать вакансии."},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        # Если нужно проверять конкретную роль:
-        # if user.role != 'employer':
-        #     return Response(...)
+            raise PermissionDenied("Вы не связаны с компанией")
 
         serializer.save(
             company=user.company,
@@ -159,18 +163,6 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         else:
             return qs.none()
 
-class FavoriteVacancyViewSet(viewsets.ModelViewSet):
-    serializer_class = FavoriteVacancySerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        return FavoriteVacancy.objects.filter(user=self.request.user)
-
-    def perform_create(self, serializer):
-        user = self.request.user
-        if user.role != 'job_seeker':
-            raise PermissionDenied("Только соискатели могут добавлять в избранное.")
-        serializer.save(user=user)
 
 
 
@@ -193,3 +185,11 @@ class CompanyViewSet(ReadOnlyModelViewSet):
             )
             .select_related("owner")
         )
+
+
+@action(detail=True, methods=["get"], url_path="top-resumes")
+def top_resumes(self, request, pk=None):
+    vacancy = self.get_object()
+    resumes = Resume.objects.all()[:10]  # пока что до 10, можно фильтровать
+    result = find_best_resumes_for_vacancy(vacancy, resumes)
+    return Response({"top_matches": result})

@@ -64,16 +64,38 @@ class JobCategory(models.Model):
 
 
 class Vacancy(models.Model):
+    EMPLOYMENT_TYPES = [
+        ('FULL', 'Full-time'),
+        ('PART', 'Part-time'),
+        ('CONTRACT', 'Contract'),
+    ]
+
+    EXPERIENCE_LEVELS = [
+        ('JUNIOR', 'Junior'),
+        ('MID', 'Middle'),
+        ('SENIOR', 'Senior'),
+    ]
+
+    CURRENCIES = [
+        ('KZT', 'KZT'),
+        ('USD', 'USD'),
+        ('EUR', 'EUR'),
+    ]
+
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='vacancies')
     title = models.CharField(max_length=255)
     description = models.TextField()
-    requirements = models.TextField(blank=True, help_text="Требования к кандидату")
+    requirements = models.TextField(blank=True)
     category = models.ForeignKey('JobCategory', on_delete=models.SET_NULL, null=True, blank=True, related_name='vacancies')
-    location = models.CharField(max_length=255, blank=True, null=True)
+
+    location = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=100, blank=True)
     salary_from = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     salary_to = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    work_type = models.CharField(max_length=20, choices=[('FULL', 'Full-time'), ('PART', 'Part-time')], default='FULL')
-    experience_required = models.CharField(max_length=100, blank=True)
+    currency = models.CharField(max_length=10, choices=CURRENCIES, default='KZT')
+    employment_type = models.CharField(max_length=20, choices=EMPLOYMENT_TYPES, default='FULL')
+    experience = models.CharField(max_length=10, choices=EXPERIENCE_LEVELS, default='MID')
+
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -118,14 +140,3 @@ class Application(models.Model):
 
     def __str__(self):
         return f"Application from {self.job_seeker.user.username} to {self.vacancy.title}"
-# companies/models.py
-class FavoriteVacancy(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='favorite_vacancies')
-    vacancy = models.ForeignKey('Vacancy', on_delete=models.CASCADE, related_name='favorited_by')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('user', 'vacancy')
-
-    def __str__(self):
-        return f"{self.user.username} ❤️ {self.vacancy.title}"

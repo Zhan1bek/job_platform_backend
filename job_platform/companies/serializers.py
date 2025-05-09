@@ -1,5 +1,4 @@
 from .models import CompanyJoinRequest, Vacancy, Application, Company
-from .models import FavoriteVacancy
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -57,32 +56,3 @@ class CompanySerializer(serializers.ModelSerializer):
 
 
 
-class VacancySerializer(serializers.ModelSerializer):
-    company = CompanySerializer(read_only=True)
-
-    class Meta:
-        model = Vacancy
-        fields = (
-            "id",
-            "title",
-            "description",
-            "requirements",
-            "employment_type",
-            "salary_from",
-            "salary_to",
-            "currency",
-            "city",
-            "experience",
-            "category",
-            "created_at",
-            "updated_at",
-            "is_active",
-            "company",
-        )
-        read_only_fields = ("company", "created_at", "updated_at")
-
-class FavoriteVacancySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FavoriteVacancy
-        fields = ['id', 'user', 'vacancy', 'created_at']
-        read_only_fields = ['id', 'user', 'created_at']

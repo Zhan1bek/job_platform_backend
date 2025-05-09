@@ -6,24 +6,24 @@ from django.db.models import Exists, OuterRef
 from resumes.models import Resume
 from resumes.serializers import ResumeSerializer
 from resumes.permissions import ResumePermission
-from companies.models import Application
+from resumes.ai_services import evaluate_resume_for_vacancy, recommend_jobs_for_resume, career_advice  # ИИ-анализ
+from companies.models import Application, Vacancy
 
 
 def get_jobseeker_profile(user):
-    """Универсальный способ получить профиль соискателя."""
     return getattr(user, "job_seeker_profile", None) or getattr(user, "jobseeker", None)
 
 
 class ResumeViewSet(viewsets.ModelViewSet):
     """
     /api/resumes/
-
-    Поддержка:
-    - GET (list, retrieve)
-    - POST (create)
-    - PATCH (update)
-    - DELETE (destroy)
-    - POST /{id}/export-pdf/ — генерация PDF
+    - GET /            — список резюме
+    - POST /           — создать
+    - GET /{id}/       — подробности
+    - PATCH /{id}/     — редактировать
+    - DELETE /{id}/    — удалить
+    - POST /{id}/export-pdf/ — сгенерировать PDF
+    - POST /{id}/analyze/    — запустить AI-анализ
     """
 
     serializer_class = ResumeSerializer
@@ -35,12 +35,10 @@ class ResumeViewSet(viewsets.ModelViewSet):
         if user.is_staff:
             return Resume.objects.all()
 
-        # Соискатель — только свои резюме
         job_seeker = get_jobseeker_profile(user)
         if job_seeker:
             return Resume.objects.filter(job_seeker=job_seeker)
 
-        # Работодатель — только резюме откликнувшихся
         if getattr(user, "company", None):
             apps = Application.objects.filter(
                 vacancy__company=user.company,
@@ -50,13 +48,10 @@ class ResumeViewSet(viewsets.ModelViewSet):
 
         return Resume.objects.none()
 
+    # ────────────────────────────── PDF ──────────────────────────────
+
     @action(detail=True, methods=["post"], url_path="export-pdf")
     def export_pdf(self, request, pk=None):
-        """
-        Генерация PDF-файла резюме.
-        Если уже есть — возвращает ссылку.
-        Если передан { "force": "true" } — пересоздаёт.
-        """
         resume = self.get_object()
         force = request.data.get("force") == "true"
 
@@ -71,3 +66,29 @@ class ResumeViewSet(viewsets.ModelViewSet):
             {"pdf_url": request.build_absolute_uri(resume.pdf_file.url)},
             status=status.HTTP_201_CREATED
         )
+
+    # ────────────────────────────── AI-анализ ──────────────────────────────
+
+    @action(detail=True, methods=["post"], url_path="evaluate-for/(?P<vacancy_id>[^/.]+)")
+    def evaluate_for_vacancy(self, request, pk=None, vacancy_id=None):
+        resume = self.get_object()
+        try:
+            vacancy = Vacancy.objects.get(pk=vacancy_id)
+        except Vacancy.DoesNotExist:
+            return Response({"error": "Вакансия не найдена"}, status=404)
+
+        result = evaluate_resume_for_vacancy(resume, vacancy)
+        return Response({"evaluation": result})
+
+    @action(detail=True, methods=["get"], url_path="recommend-jobs")
+    def recommend_jobs(self, request, pk=None):
+        resume = self.get_object()
+        vacancies = Vacancy.objects.all()[:20]  # можно фильтровать по городу и т.д.
+        result = recommend_jobs_for_resume(resume, vacancies)
+        return Response({"recommendations": result})
+
+    @action(detail=True, methods=["post"], url_path="career-advice")
+    def career_advice_action(self, request, pk=None):
+        resume = self.get_object()
+        result = career_advice(resume)
+        return Response({"advice": result})
