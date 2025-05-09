@@ -4,12 +4,10 @@ from .views import (
     JobSeekerRegisterView,
     EmployerRegisterView,
     JobSeekerProfileView,
-    ResumeViewSet,
     ChangePasswordView
 )
 
 router = DefaultRouter()
-router.register(r'resumes', ResumeViewSet, basename='resumes')
 
 urlpatterns = [
     path('register/jobseeker/', JobSeekerRegisterView.as_view(), name='jobseeker-register'),

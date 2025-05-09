@@ -1,7 +1,7 @@
-from rest_framework import serializers
-from .models import CompanyJoinRequest, Vacancy, Application
-from rest_framework import serializers
+from .models import CompanyJoinRequest, Vacancy, Application, Company
 from .models import FavoriteVacancy
+from django.contrib.auth import get_user_model
+from rest_framework import serializers
 
 class CompanyJoinRequestSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,20 +31,55 @@ class ApplicationSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'job_seeker', 'created_at']
 
+class OwnerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ("id", "first_name", "last_name", "email")
+
+
+class CompanySerializer(serializers.ModelSerializer):
+    owner = OwnerSerializer(read_only=True)
+    active_vacancies_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Company
+        fields = (
+            "id",
+            "name",
+            "description",
+            "industry",
+            "founded_year",
+            "website",
+            "logo",
+            "owner",
+            "active_vacancies_count",
+        )
+
+
 
 class VacancySerializer(serializers.ModelSerializer):
-    is_favorited = serializers.SerializerMethodField()
+    company = CompanySerializer(read_only=True)
 
     class Meta:
         model = Vacancy
-        fields = '__all__'
-        read_only_fields = ['company', 'created_by', 'created_at', 'updated_at']
-
-    def get_is_favorited(self, obj):
-        user = self.context['request'].user
-        if user.is_anonymous:
-            return False
-        return FavoriteVacancy.objects.filter(user=user, vacancy=obj).exists()
+        fields = (
+            "id",
+            "title",
+            "description",
+            "requirements",
+            "employment_type",
+            "salary_from",
+            "salary_to",
+            "currency",
+            "city",
+            "experience",
+            "category",
+            "created_at",
+            "updated_at",
+            "is_active",
+            "company",
+        )
+        read_only_fields = ("company", "created_at", "updated_at")
 
 class FavoriteVacancySerializer(serializers.ModelSerializer):
     class Meta:

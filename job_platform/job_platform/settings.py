@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
@@ -50,9 +51,12 @@ INSTALLED_APPS = [
     'chat',
     'jobs',
     'companies',
+    'resumes',
     'publications',
     'channels',
-    'corsheaders'
+    'corsheaders',
+    'django_cleanup.apps.CleanupConfig'
+
 
 ]
 
@@ -180,3 +184,8 @@ REST_FRAMEWORK = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 CORS_ALLOW_ALL_ORIGINS = True
+
+PDFKIT_CONFIG = {
+    "wkhtmltopdf": r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
+}
+

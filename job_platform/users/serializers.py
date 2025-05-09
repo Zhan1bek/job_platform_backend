@@ -2,7 +2,6 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import JobSeeker, Employer
 
-from .models import Resume
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 User = get_user_model()
@@ -91,12 +90,12 @@ class JobSeekerRegistrationSerializer(serializers.ModelSerializer):
 
 
 
-class ResumeSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Resume
-        fields = '__all__'
-        read_only_fields = ('job_seeker', 'created_at', 'updated_at')
+# class ResumeSerializer(serializers.ModelSerializer):
+#
+#     class Meta:
+#         model = Resume
+#         fields = '__all__'
+#         read_only_fields = ('job_seeker', 'created_at', 'updated_at')
 
 
 
