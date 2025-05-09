@@ -1,14 +1,17 @@
 from rest_framework import generics
 from .serializers import JobSeekerRegistrationSerializer, EmployerRegistrationSerializer
 
+from rest_framework.exceptions import PermissionDenied
+
+from users.serializers import EmployerSerializer
 from rest_framework import viewsets, permissions, status
-from .permissions import IsOwnerOrReadOnly
 
 from .models import JobSeeker
 from .serializers import JobSeekerSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import CustomTokenObtainPairSerializer
-
+from companies.serializers import CompanySerializer
+from rest_framework.exceptions import NotFound
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -35,6 +38,62 @@ class JobSeekerProfileView(generics.RetrieveUpdateAPIView):
         return self.request.user.job_seeker_profile
 
 
+
+class EmployerProfileView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        if user.role != "employer":
+            raise PermissionDenied("Вы не являетесь сотрудником")
+
+        if not hasattr(user, 'employer_profile'):
+            raise NotFound("Профиль сотрудника не найден")
+
+        employer = user.employer_profile
+        company = employer.company
+
+        return Response({
+            "user_id": user.id,
+            "email": user.email,
+            "position": employer.position,
+            "company": {
+                "id": company.id if company else None,
+                "name": company.name if company else None,
+                "is_owner": company.owner_id == user.id if company else False
+            } if company else None
+        })
+
+    def patch(self, request):
+        user = request.user
+
+        if user.role != "employer":
+            raise PermissionDenied("Вы не являетесь сотрудником")
+
+        if not hasattr(user, 'employer_profile'):
+            raise NotFound("Профиль сотрудника не найден")
+
+        employer = user.employer_profile
+        employer_serializer = EmployerSerializer(employer, data=request.data, partial=True)
+
+        if employer_serializer.is_valid():
+            employer_serializer.save()
+        else:
+            return Response(employer_serializer.errors, status=400)
+
+        # Обновление компании — если юзер является её владельцем
+        company_data = request.data.get("company")
+        if company_data and employer.company and employer.company.owner_id == user.id:
+            company_serializer = CompanySerializer(employer.company, data=company_data, partial=True)
+            if company_serializer.is_valid():
+                company_serializer.save()
+            else:
+                return Response(company_serializer.errors, status=400)
+
+        return Response({
+            "detail": "Профиль успешно обновлён"
+        })
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):

@@ -37,22 +37,10 @@ class OwnerSerializer(serializers.ModelSerializer):
 
 
 class CompanySerializer(serializers.ModelSerializer):
-    owner = OwnerSerializer(read_only=True)
-    active_vacancies_count = serializers.IntegerField(read_only=True)
-
     class Meta:
         model = Company
-        fields = (
-            "id",
-            "name",
-            "description",
-            "industry",
-            "founded_year",
-            "website",
-            "logo",
-            "owner",
-            "active_vacancies_count",
-        )
+        fields = ['id', 'name', 'description', 'industry', 'website', 'logo', 'founded_year']
+
 
 
 

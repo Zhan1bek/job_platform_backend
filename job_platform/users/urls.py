@@ -4,7 +4,7 @@ from .views import (
     JobSeekerRegisterView,
     EmployerRegisterView,
     JobSeekerProfileView,
-    ChangePasswordView
+    ChangePasswordView, EmployerProfileView
 )
 
 router = DefaultRouter()
@@ -15,6 +15,7 @@ urlpatterns = [
     path('change_password/', ChangePasswordView.as_view(), name='change_password'),
 
     path('jobseeker/profile/', JobSeekerProfileView.as_view(), name='jobseeker-profile'),
+    path("employers/profile/", EmployerProfileView.as_view(), name="employer-profile"),
 
     path('', include(router.urls)),
 ]

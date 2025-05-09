@@ -90,13 +90,6 @@ class JobSeekerRegistrationSerializer(serializers.ModelSerializer):
 
 
 
-# class ResumeSerializer(serializers.ModelSerializer):
-#
-#     class Meta:
-#         model = Resume
-#         fields = '__all__'
-#         read_only_fields = ('job_seeker', 'created_at', 'updated_at')
-
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -109,13 +102,17 @@ class JobSeekerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = JobSeeker
-        fields = ['id', 'languages', 'user']
+        fields = [
+            'id', 'user',
+            'languages', 'skills', 'bio', 'city',
+            'birth_date', 'experience', 'education', 'certifications'
+        ]
 
     def update(self, instance, validated_data):
-        # validated_data для JobSeeker, а внутри user-данные
         user_data = validated_data.pop('user', None)
-        # Обновляем поля JobSeeker
-        instance.languages = validated_data.get('languages', instance.languages)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
         instance.save()
 
         if user_data:
@@ -125,6 +122,7 @@ class JobSeekerSerializer(serializers.ModelSerializer):
             user.save()
 
         return instance
+
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -143,3 +141,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             data['role'] = 'unknown'
 
         return data
+
+
+class EmployerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Employer
+        fields = ['position']
