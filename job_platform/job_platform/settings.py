@@ -187,6 +187,5 @@ MEDIA_ROOT = BASE_DIR / 'media'
 CORS_ALLOW_ALL_ORIGINS = True
 
 PDFKIT_CONFIG = {
-    "wkhtmltopdf": r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
+    "wkhtmltopdf": "/usr/local/bin/wkhtmltopdf"  
 }
-
