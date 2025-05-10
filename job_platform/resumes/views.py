@@ -39,19 +39,24 @@ class ResumeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="export-pdf")
     def export_pdf(self, request, pk=None):
+        """
+        Генерация PDF-файла резюме.
+        Если уже есть — возвращает ссылку.
+        Если передан { "force": "true" } — пересоздаёт.
+        """
         resume = self.get_object()
         force = request.data.get("force") == "true"
 
-        if resume.pdf_file and not force:
-            return Response(
-                {"pdf_url": request.build_absolute_uri(resume.pdf_file.url)},
-                status=status.HTTP_200_OK
-            )
+        if resume.pdf_file and force:
+            # Удаляем старый PDF
+            resume.pdf_file.delete(save=False)
 
-        resume.build_pdf()
+        if not resume.pdf_file or force:
+            resume.build_pdf()
+
         return Response(
             {"pdf_url": request.build_absolute_uri(resume.pdf_file.url)},
-            status=status.HTTP_201_CREATED
+            status=status.HTTP_200_OK
         )
 
     @action(detail=True, methods=["post"], url_path="evaluate-for/(?P<vacancy_id>[^/.]+)")

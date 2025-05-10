@@ -1,12 +1,10 @@
 from django.db import models
-from django.contrib.auth import get_user_model
 from django.utils import timezone
-User = get_user_model()
 
 class Message(models.Model):
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages', null=True, blank=True)
-    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages', null=True, blank=True)
-    content = models.TextField(default="")  # безопасное значение по умолчанию
+    sender = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='sent_messages', null=True, blank=True)
+    recipient = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='received_messages', null=True, blank=True)
+    content = models.TextField(default="")
     timestamp = models.DateTimeField(default=timezone.now)
 
     def __str__(self):

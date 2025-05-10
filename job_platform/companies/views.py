@@ -5,6 +5,8 @@ from django.db import IntegrityError
 from rest_framework.exceptions import ValidationError
 from django.db.models import Count, Q
 from rest_framework.viewsets import ReadOnlyModelViewSet
+
+from chat.models import Message
 from companies.models import Company
 from companies.serializers import CompanySerializer
 from users.models import Employer
@@ -111,23 +113,33 @@ class ApplicationViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user
 
-        # 1) Проверяем, что user - job_seeker
         if user.role != 'job_seeker':
             raise PermissionDenied("Только соискатель может откликаться")
 
         if not hasattr(user, 'job_seeker_profile'):
             raise PermissionDenied("У вас нет job_seeker_profile")
 
-        job_seeker = user.job_seeker_profile  # OneToOne
+        job_seeker = user.job_seeker_profile
 
         try:
-            serializer.save(job_seeker=job_seeker, status='pending')
+            application = serializer.save(job_seeker=job_seeker, status='pending')
         except IntegrityError:
             raise ValidationError({"detail": "Вы уже откликались на эту вакансию"})
 
-        # 2) Сохраняем с default status='pending'
-        # serializer.validated_data['vacancy'] - тот vacancy_id, что пришёл с POST
-        serializer.save(job_seeker=job_seeker, status='pending')
+        # 📩 Автосоздание приветственного сообщения
+        try:
+            from chat.models import Message
+            sender = user
+            recipient = application.vacancy.created_by
+
+            if sender != recipient:
+                Message.objects.create(
+                    sender=sender,
+                    recipient=recipient,
+                    content="👋 Здравствуйте! Я откликнулся на вашу вакансию."
+                )
+        except Exception as e:
+            print("Ошибка создания чата:", e)
 
     def update(self, request, *args, **kwargs):
         """

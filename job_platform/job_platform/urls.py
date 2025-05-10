@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenRefreshView
+
+from chat.views import MessageViewSet
 from users.views import CustomTokenObtainPairView  # кастомная авторизация
 
 from django.conf import settings
@@ -13,6 +15,8 @@ from resumes.views import ResumeViewSet
 router = routers.DefaultRouter()
 # router.register(r'chats', ChatViewSet, basename='chats')
 router.register(r"resumes", ResumeViewSet, "resume")
+router.register(r'messages', MessageViewSet, basename='messages')
+
 
 # router.register(r'messages', MessageViewSet, basename='messages')
 
