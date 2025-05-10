@@ -3,19 +3,16 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Exists, OuterRef
 
-from resumes.ai_services import career_advice, recommend_jobs_for_resume, evaluate_resume_for_vacancy
 from resumes.models import Resume
 from resumes.serializers import ResumeSerializer
 from resumes.permissions import ResumePermission
-# from resumes.ai_services import evaluate_resume_for_vacancy, recommend_jobs_for_resume, career_advice  # ИИ-анализ
 from companies.models import Application, Vacancy
 
+# AI-функции
+from resumes.ai_services import evaluate_resume_for_vacancy, recommend_jobs_for_resume, career_advice
 
 def get_jobseeker_profile(user):
     return getattr(user, "job_seeker_profile", None) or getattr(user, "jobseeker", None)
-
-
-
 
 class ResumeViewSet(viewsets.ModelViewSet):
     serializer_class = ResumeSerializer
@@ -39,6 +36,23 @@ class ResumeViewSet(viewsets.ModelViewSet):
             return Resume.objects.filter(Exists(apps))
 
         return Resume.objects.none()
+
+    @action(detail=True, methods=["post"], url_path="export-pdf")
+    def export_pdf(self, request, pk=None):
+        resume = self.get_object()
+        force = request.data.get("force") == "true"
+
+        if resume.pdf_file and not force:
+            return Response(
+                {"pdf_url": request.build_absolute_uri(resume.pdf_file.url)},
+                status=status.HTTP_200_OK
+            )
+
+        resume.build_pdf()
+        return Response(
+            {"pdf_url": request.build_absolute_uri(resume.pdf_file.url)},
+            status=status.HTTP_201_CREATED
+        )
 
     @action(detail=True, methods=["post"], url_path="evaluate-for/(?P<vacancy_id>[^/.]+)")
     def evaluate_for_vacancy(self, request, pk=None, vacancy_id=None):
