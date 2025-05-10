@@ -7,7 +7,6 @@ ENV PYTHONUNBUFFERED=1 \
     PERSISTENT_DIR=/data
 
 
-
 WORKDIR /app
 
 
