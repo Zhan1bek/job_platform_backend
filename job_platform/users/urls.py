@@ -16,12 +16,12 @@ router = DefaultRouter()
 
 urlpatterns = [
     # API
-    path('api/register/jobseeker/', JobSeekerRegisterView.as_view(), name='jobseeker-register'),
-    path('api/register/employer/', EmployerRegisterView.as_view(), name='employer-register'),
-    path('api/change_password/', ChangePasswordView.as_view(), name='change_password'),
-    path('api/jobseeker/profile/', JobSeekerProfileView.as_view(), name='jobseeker-profile'),
-    path('api/employers/profile/', EmployerProfileView.as_view(), name='employer-profile'),
-    path('api/', include(router.urls)),
+    path('register/jobseeker/', JobSeekerRegisterView.as_view(), name='jobseeker-register'),
+    path('register/employer/', EmployerRegisterView.as_view(), name='employer-register'),
+    path('change_password/', ChangePasswordView.as_view(), name='change_password'),
+    path('jobseeker/profile/', JobSeekerProfileView.as_view(), name='jobseeker-profile'),
+    path('employers/profile/', EmployerProfileView.as_view(), name='employer-profile'),
+    path('', include(router.urls)),
 
     # HTML
 
