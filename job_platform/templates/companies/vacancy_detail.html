@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Вакансия: {{ vacancy.title }}{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h2>{{ vacancy.title }}</h2>
+    <p><strong>Описание:</strong> {{ vacancy.description }}</p>
+    <p><strong>Требования:</strong> {{ vacancy.requirements }}</p>
+    <p><strong>Город:</strong> {{ vacancy.city }}</p>
+    <p><strong>Локация:</strong> {{ vacancy.location }}</p>
+    <p><strong>Зарплата:</strong> {{ vacancy.salary_from }} — {{ vacancy.salary_to }} {{ vacancy.currency }}</p>
+    <p><strong>Тип занятости:</strong> {{ vacancy.employment_type }}</p>
+    <p><strong>Опыт:</strong> {{ vacancy.experience }}</p>
+
+    <a href="{% url 'vacancy-list-html' %}">
+      <button>← Назад к списку</button>
+    </a>
+  </div>
+{% endblock %}

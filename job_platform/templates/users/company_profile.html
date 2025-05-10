@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль компании{% endblock %}
+
+{% block content %}
+  <h2>Профиль компании</h2>
+  <p><strong>Сотрудник:</strong> {{ user.username }}</p>
+  <p><strong>Email:</strong> {{ user.email }}</p>
+
+  {% if company %}
+    <p><strong>Компания:</strong> {{ company.name }}</p>
+    <p><strong>Владелец:</strong> {% if company.is_owner %}Вы владелец{% else %}Нет{% endif %}</p>
+  {% else %}
+    <p>Вы не связаны с компанией.</p>
+  {% endif %}
+{% endblock %}

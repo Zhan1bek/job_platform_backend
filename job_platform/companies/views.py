@@ -1,7 +1,9 @@
 from django.db import IntegrityError
 from django.db.models import Count, Q
 from django_filters.rest_framework import DjangoFilterBackend
-
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import VacancyForm
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -241,3 +243,67 @@ class JobCategoryViewSet(viewsets.ReadOnlyModelViewSet):
 
         serializer = VacancySerializer(vacancies, many=True)
         return Response(serializer.data)
+
+
+
+@login_required
+def vacancy_create_view(request):
+    if request.user.role != 'employer':
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        form = VacancyForm(request.POST)
+        if form.is_valid():
+            vacancy = form.save(commit=False)
+            vacancy.company = request.user.company
+            vacancy.created_by = request.user
+            vacancy.save()
+            return redirect('employer-dashboard')  # замените на нужный URL
+    else:
+        form = VacancyForm()
+
+    return render(request, 'companies/vacancy_create.html', {'form': form})
+
+
+@login_required
+def vacancy_list_view(request):
+    if request.user.role != 'employer':
+        return redirect('dashboard')
+    vacancies = Vacancy.objects.filter(company=request.user.company)
+    return render(request, 'companies/vacancy_list.html', {'vacancies': vacancies})
+
+
+@login_required
+def vacancy_detail_view(request, pk):
+    if request.user.role != 'employer':
+        return redirect('dashboard')
+    vacancy = get_object_or_404(Vacancy, pk=pk, company=request.user.company)
+    return render(request, 'companies/vacancy_detail.html', {'vacancy': vacancy})
+
+@login_required
+def application_list_view(request):
+    user = request.user
+    if user.role != 'employer' or not user.company:
+        return render(request, 'error.html', {'message': 'Вы не работодатель или не связаны с компанией'})
+
+    applications = Application.objects.filter(vacancy__company=user.company).select_related('job_seeker', 'vacancy', 'job_seeker__user')
+    return render(request, 'companies/applications_list.html', {'applications': applications})
+
+
+@login_required
+def application_accept_view(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+    if request.user.company != application.vacancy.company:
+        return redirect('applications-list')  # защита
+    application.status = 'accepted'
+    application.save()
+    return redirect('applications-list')
+
+@login_required
+def application_reject_view(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+    if request.user.company != application.vacancy.company:
+        return redirect('applications-list')  # защита
+    application.status = 'rejected'
+    application.save()
+    return redirect('applications-list')

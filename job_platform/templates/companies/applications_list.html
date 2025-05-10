@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Отклики{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h2>📄 Отклики на вакансии</h2>
+    {% if applications %}
+      <ul>
+        {% for app in applications %}
+          <li>
+            <strong>{{ app.job_seeker.user.email }}</strong> —
+            {{ app.vacancy.title }} —
+            Статус: <em>{{ app.status }}</em>
+
+            {% if app.status == 'pending' %}
+              <a href="{% url 'application-accept' app.id %}">
+                <button style="margin-left: 10px;">✅ Принять</button>
+              </a>
+              <a href="{% url 'application-reject' app.id %}">
+                <button style="margin-left: 5px;">❌ Отклонить</button>
+              </a>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Пока откликов нет.</p>
+    {% endif %}
+    <a href="{% url 'employer-dashboard' %}">
+      <button>← Назад</button>
+    </a>
+  </div>
+{% endblock %}

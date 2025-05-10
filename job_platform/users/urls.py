@@ -5,10 +5,12 @@ from .views import (
     JobSeekerRegisterView, EmployerRegisterView,
     JobSeekerProfileView, EmployerProfileView,
     ChangePasswordView,
-    universal_register  # ← только его оставляем
+    universal_register, jobseeker_dashboard, employer_dashboard_view, employer_profile_view  # ← только его оставляем
 )
 from .views import main_page
 from .views import dashboard_view
+from .views import CustomLoginView, dashboard_view
+
 
 router = DefaultRouter()
 
@@ -24,7 +26,10 @@ urlpatterns = [
     # HTML
 
     path('register/', universal_register, name='register'),
-    path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='login'),
+    path('login/', CustomLoginView.as_view(), name='login'),
+    path('dashboard/jobseeker/', jobseeker_dashboard, name='jobseeker-dashboard'),
+    path('dashboard/employer/', employer_dashboard_view, name='employer-dashboard'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('dashboard/', dashboard_view, name='dashboard'),
+    path('dashboard/employer/profile/', employer_profile_view, name='employer-profile'),
 ]

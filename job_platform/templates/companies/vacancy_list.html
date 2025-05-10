@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои вакансии{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h2>📄 Мои вакансии</h2>
+    {% if vacancies %}
+      <ul>
+        {% for vacancy in vacancies %}
+              <li style="margin-bottom: 10px;">
+                <a href="{% url 'vacancy-detail' vacancy.id %}">
+                  <strong>{{ vacancy.title }}</strong>
+                </a>
+                — {{ vacancy.city }} | {{ vacancy.salary_from }}–{{ vacancy.salary_to }} {{ vacancy.currency }}
+              </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>У вас пока нет созданных вакансий.</p>
+    {% endif %}
+    <div style="margin-top: 20px;">
+      <a href="{% url 'employer-dashboard' %}"><button>← Назад</button></a>
+    </div>
+  </div>
+{% endblock %}

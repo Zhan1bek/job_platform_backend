@@ -1,6 +1,7 @@
 from rest_framework import generics
 from .serializers import JobSeekerRegistrationSerializer, EmployerRegistrationSerializer
-
+from django.contrib.auth.views import LoginView
+from django.urls import reverse_lazy
 from rest_framework.exceptions import PermissionDenied
 
 from users.serializers import EmployerSerializer
@@ -157,3 +158,45 @@ def universal_register(request):
     else:
         form = UniversalRegisterForm()
     return render(request, 'users/register_universal.html', {'form': form})
+
+
+class CustomLoginView(LoginView):
+    template_name = 'users/login.html'
+
+    def get_success_url(self):
+        user = self.request.user
+        if user.role == 'job_seeker':
+            return '/api/users/dashboard/jobseeker/'
+        elif user.role == 'employer':
+            return '/api/users/dashboard/employer/'
+        return '/api/users/dashboard/'
+
+@login_required
+def jobseeker_dashboard(request):
+    return render(request, 'users/jobseeker_dashboard.html')
+
+@login_required
+def employer_dashboard_view(request):
+    if request.user.role != 'employer':
+        return redirect('dashboard')  # обычный дашборд для job_seeker
+    return render(request, 'users/employer_dashboard.html')
+
+
+
+@login_required
+def employer_profile_view(request):
+    if request.user.role != 'employer':
+        return redirect('dashboard')
+
+    employer = getattr(request.user, 'employer_profile', None)
+    company = None
+    if employer and employer.company:
+        company = {
+            'name': employer.company.name,
+            'is_owner': employer.company.owner_id == request.user.id
+        }
+
+    return render(request, 'users/company_profile.html', {
+        'user': request.user,
+        'company': company,
+    })

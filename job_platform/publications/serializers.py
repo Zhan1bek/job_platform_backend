@@ -11,11 +11,12 @@ class PublicationSerializer(serializers.ModelSerializer):
     likes_count = serializers.IntegerField(read_only=True)
     comments_count = serializers.IntegerField(read_only=True)
     category = serializers.SlugRelatedField(slug_field="name", queryset=PostCategory.objects.all(), required=False)
+    author_name = serializers.CharField(source='author.username', read_only=True)
 
     class Meta:
         model = Publication
         fields = [
-            'id', 'author', 'company', 'title', 'text', 'post_type',
+            'id', 'author', 'author_name', 'company', 'title', 'text', 'post_type',
             'tags', 'image', 'category',
             'created_at', 'updated_at',
             'likes_count', 'comments_count'

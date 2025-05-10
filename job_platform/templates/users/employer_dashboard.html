@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Кабинет Сотрудника{% endblock %}
+
+{% block content %}
+  <h2 style="text-align: center;">👔 Кабинет сотрудника</h2>
+  <p style="text-align: center;">Добро пожаловать, {{ user.username }}!</p>
+
+  <div style="text-align: center; margin-top: 30px;">
+    <a href="{% url 'employer-profile' %}">
+      <button>Профиль компании</button>
+    </a>
+    <a href="{% url 'vacancy-create-html' %}">
+      <button>Создать вакансию</button>
+    </a>
+    <a href="{% url 'vacancy-list-html' %}">
+      <button>Мои вакансии</button>
+    </a>
+    <a href="{% url 'applications-list' %}">
+      <button>Отклики</button>
+    </a>
+    <a href="/api/chat/">
+      <button>Чат</button>
+    </a>
+    <a href="/api/publications/">
+      <button>Публикации</button>
+    </a>
+  </div>
+{% endblock %}

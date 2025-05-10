@@ -5,7 +5,8 @@ from .views import (
     VacancyViewSet,
     ApplicationViewSet,
     CompanyViewSet,
-    JobCategoryViewSet
+    JobCategoryViewSet, vacancy_create_view, vacancy_list_view, vacancy_detail_view, application_list_view,
+    application_accept_view, application_reject_view
 )
 
 router = DefaultRouter()
@@ -17,4 +18,11 @@ router.register(r'categories', JobCategoryViewSet, basename='job-category')
 
 urlpatterns = [
     path('', include(router.urls)),
+
+    path('vacancies/create/html/', vacancy_create_view, name='vacancy-create-html'),
+    path('vacancies/list/html/', vacancy_list_view, name='vacancy-list-html'),
+    path('vacancies/<int:pk>/html/', vacancy_detail_view, name='vacancy-detail'),
+    path('applications/list/html/', application_list_view, name='applications-list'),
+    path('applications/<int:pk>/accept/', application_accept_view, name='application-accept'),
+    path('applications/<int:pk>/reject/', application_reject_view, name='application-reject'),
 ]
