@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+  <h1 style="text-align:center;">Добро пожаловать на JobPlatform</h1>
+  <p style="text-align:center;">Платформа для соискателей и работодателей</p>
+
+  <div style="text-align:center; margin-top: 30px;">
+    <a href="{% url 'login' %}"><button>Войти</button></a>
+    <a href="{% url 'register' %}"><button>Регистрация</button></a>
+  </div>
+{% endblock %}

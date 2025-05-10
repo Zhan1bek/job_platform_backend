@@ -5,6 +5,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from chat.views import MessageViewSet
 from users.views import CustomTokenObtainPairView  # кастомная авторизация
+from users.views import main_page
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -22,10 +23,12 @@ router.register(r'messages', MessageViewSet, basename='messages')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', main_page, name='main'),
 
     # JWT авторизация
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
 
     # Основные приложения
     path('api/users/', include('users.urls')),
@@ -34,6 +37,7 @@ urlpatterns = [
     path('api/publications/', include('publications.urls')),
     path('api/', include('reports.urls')),
     path('api/chat/', include('chat.urls')),
+
 
 
 ]

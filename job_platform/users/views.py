@@ -17,6 +17,22 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 
+from django.shortcuts import render, redirect
+from django.contrib.auth import login
+from .forms import UniversalRegisterForm
+
+from django.shortcuts import render
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+@login_required
+def dashboard_view(request):
+    return render(request, 'users/dashboard.html')
+
+
+def main_page(request):
+    return render(request, 'main.html')
 
 class JobSeekerRegisterView(generics.CreateAPIView):
     serializer_class = JobSeekerRegistrationSerializer
@@ -125,3 +141,19 @@ class ChangePasswordView(APIView):
 
         return Response({"detail": "Пароль успешно изменён."}, status=status.HTTP_200_OK)
 
+def universal_register(request):
+    if request.method == 'POST':
+        form = UniversalRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])
+            user.role = form.cleaned_data['role']
+            user.save()
+            login(request, user)
+            if user.role == 'job_seeker':
+                return redirect('jobseeker-profile')
+            else:
+                return redirect('employer-profile')
+    else:
+        form = UniversalRegisterForm()
+    return render(request, 'users/register_universal.html', {'form': form})

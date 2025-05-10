@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель пользователя{% endblock %}
+
+{% block content %}
+  <h2>Добро пожаловать, {{ user.username }}</h2>
+  <p>Выберите действие:</p>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 30px;">
+    <a href="/jobs/"><button>🔍 Вакансии</button></a>
+    <a href="{% url 'jobseeker-profile' %}"><button>👤 Профиль</button></a>
+    <a href="/companies/"><button>🏢 Компании</button></a>
+    <a href="/resumes/"><button>📄 Мои резюме</button></a>
+    <a href="/api/chat/"><button>💬 Чат</button></a>
+    <a href="/logout/"><button>🚪 Выйти</button></a>
+  </div>
+{% endblock %}

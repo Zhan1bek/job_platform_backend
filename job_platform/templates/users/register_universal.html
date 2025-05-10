@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+  <h2>Регистрация</h2>
+  <form method="post">
+    {% csrf_token %}
+
+    <p>
+      {{ form.email.label_tag }}<br>
+      {{ form.email }}
+    </p>
+
+    <p>
+      {{ form.username.label_tag }}<br>
+      {{ form.username }}
+    </p>
+
+    <p>
+      {{ form.password.label_tag }}<br>
+      {{ form.password }}
+    </p>
+
+    <p>
+      {{ form.password_confirm.label_tag }}<br>
+      {{ form.password_confirm }}
+    </p>
+
+    <p>
+      {{ form.role.label_tag }}<br>
+      {{ form.role }}
+    </p>
+
+    <button type="submit">Зарегистрироваться</button>
+  </form>
+
+  <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+{% endblock %}
