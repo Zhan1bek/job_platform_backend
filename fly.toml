@@ -7,7 +7,12 @@ primary_region = "fra"
 
 [env]
   DJANGO_SETTINGS_MODULE = "job_platform.settings"
-  PYTHONUNBUFFERED = "1"
+  PERSISTENT_DIR = "/data"
+
+[mounts]
+  source = "data"
+  destination = "/data"
+
 
 [[services]]
   internal_port = 8000

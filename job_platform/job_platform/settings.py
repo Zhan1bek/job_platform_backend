@@ -90,9 +90,9 @@ CHANNEL_LAYERS = {
 
 # ─────────────────── База данных ──────────────────────
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": PERSISTENT_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(os.environ.get('PERSISTENT_DIR', '/data'), 'db.sqlite3'),
     }
 }
 

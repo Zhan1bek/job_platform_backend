@@ -11,6 +11,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+# collectstatic
 RUN python job_platform/manage.py collectstatic --noinput
 
+# запускаем Gunicorn из папки, где виден job_platform/
+WORKDIR /app/job_platform
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "job_platform.wsgi:application"]
