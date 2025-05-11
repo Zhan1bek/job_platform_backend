@@ -2,6 +2,7 @@ FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
     DJANGO_SETTINGS_MODULE=job_platform.settings \
+    PYTHONPATH=/app \
     PERSISTENT_DIR=/data
 
 WORKDIR /app
