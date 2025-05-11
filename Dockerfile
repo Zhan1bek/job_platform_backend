@@ -2,8 +2,8 @@ FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
     DJANGO_SETTINGS_MODULE=job_platform.settings \
-    PYTHONPATH=/app \
-    PERSISTENT_DIR=/data
+    PERSISTENT_DIR=/data \
+    PYTHONPATH=/app
 
 WORKDIR /app
 
@@ -12,6 +12,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN python job_platform/manage.py collectstatic --noinput
+RUN python manage.py collectstatic --noinput
 
 CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "job_platform.asgi:application"]
